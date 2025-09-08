@@ -1,0 +1,173 @@
+------------------------------------------------------------------------------------------------------------------------------------------------
+									     JENKINS
+------------------------------------------------------------------------------------------------------------------------------------------------
+=> CI & CD Process
+GitHub ----> Cloned ----> Packaged the code (war) ----> Manually deployed into the server ---> Manual
+
+CI & CD is an automation process to build and deploy the application in the webserver.
+
+CI - Continuous Integration
+	CI = Continuous Test + Continuous Build
+	Version 1 ----> Deployed
+	Version 2 ----> Makes the changes to the code ----> Test the code ----> Build the code ---> Deployed	Version 3 ---->	 Makes the changes to the code ----> Test the code ----> Build the code ---> Deployed
+
+CD - Continuous Delivery
+	If you are deploying the code manually, then it is known as Continuous Delivery
+
+CD - Continuous Deployment
+	If you are deploying the code in an automated way, then it is known as Continuous Deployment
+ In order to automate the Build and Deployment process we will a CI &CD tool known as JENKINS
+Ex: Circle CI, Argo CD, GitHub Actions, AWS Code Pipeline
+
+
+GitHub ----> AWS Code Commit
+Maven ----> AWS Code Build
+Jenkins ----> AWS Code Pipeline
+
+Before Jenkins  ----> Continuous Delivery
+After Jenkins ----> Continuous Deployment
+
+=> Introduction to Jenkins
+Jenkins is a CI & CD tool
+By using Jenkins we can automate the build and deployment process
+Jenkins is developed using Java Programming Language
+If you want to work with Jenkins, we need to install Java (17,21)
+Jenkins will run on default port number which is 8080
+
+VM --- Tomcat (8080), Jenkins (8080)
+VM 1 -- Tomcat (8080)
+VM 2 -- Jenkins (8080)
+
+The official documentation of Jenkins: https://www.jenkins.io/
+
+=> Install & Setup Jenkins
+Launch 1 Amazon Linux 2 Instance, t2.micro, 30 GB
+
+===========================
+Jenkins Setup
+===========================
+Step 1: Launch Amazon Linux 2 AMI, t2.micro
+sudo -s   
+sudo yum update
+
+Step 2: Install Git, Java 17 and Maven in server
+yum install git java-17-amazon-corretto maven -y
+  
+Step 3: Jenkins installation
+Official documentation for commands 
+(Jenkins.io ---> download ---> RedHat) show in browser Jenkins.io ---> LTS Redhat (URL: https://www.jenkins.io/doc/book/installing/linux/#red-hat-centos)
+
+sudo wget -O /etc/yum.repos.d/jenkins.repo \
+    https://pkg.jenkins.io/redhat-stable/jenkins.repo
+
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+
+sudo yum upgrade
+
+yum install jenkins -y
+
+systemctl start jenkins.service
+
+systemctl status jenkins.service  
+You should see "active (running)" in green colour 
+
+NOTE: chkconfig jenkins on
+The above command will make Jenkins service automatically restart itself whenever a server is stopped and restarted
+
+Step 4: Setup Jenkins Dashboard
+Setup Credentials
+Install suggested plugins
+Create admin user
+Access the jenkins dashboard
+
+
+Default path of Jenkins: /var/lib/jenkins
+
+
+=> Exploring Jenkins console
+In Jenkins, we will create jobs (tasks) which are known as JENKINS JOBS/ITEMS
+
+=> Types of jobs
+Jenkins basically supports 2 types of jobs;
+	1. Freestyle project ---- GUI
+	2. Pipeline project ---- Code - Groovy script
+
+=> Job 1: Create a basic freestyle project
+In freestyle project, we have to configure 6 steps.
+Based on type of job, we will work with required steps
+
+=> Job 2: Building the job automatically
+Build Triggers - Build Periodically 
+Based on the cron expression we have given, the job will automatically get built
+
+Monday - 9.00 AM 
+Sunday - 9.00 AM
+
+JOB 2 - Freestyle
+In 2nd job, under 'Build Steps' option select 'Execute Shell' write the below command to create a file and write the content inside the file
+echo "Welcome to Jenkins Lectures by Kastro" > /tmp/kastro.txt
+
+After building the job ----> Check console output and look for path ----> cd /tmp ----> You will see "Kastro.txt" file ----> cat Kastro.txt ----> You will see the content inside the file which we have kept in jenkins console
+
+JOB 3 - Freestyle
+Lets say i have a file in my VM and i want Jenkins to run that file. 
+Currently you are in /tmp path (If you are not there, execute "cd /tmp" command) ----> Create a shell file ----> vi kastro.sh ----> Write the below content ----> 
+echo "Welcome to Jenkins Class"
+echo "Jenkins is a CI & CD Tool" ----> esc ----> :wq ----> Run the shell file ----> You will see the output.
+
+Now the shell file is available in the server. I want jenkins to execute this file.
+
+Create 3rd job and under 'Build Steps' option select 'Execute Shell' write the below command to execute the file created now;
+bash /tmp/<ShellFileName>.sh
+Build the job
+Goto console output to see the content got executed
+
+JOB 4 - Freestyle (Assignment)
+Create a shell file (inside the VM) to install httpd and make jenkins to build that shell file.
+Access the Apache Home Page in browser
+
+Job 8 - Freestyle (Integrating GitHub with Jenkins)
+Create a job ---> SCM (left pane) ---> 'Check' Git ---> Repo URL: <Provide Any Repo URL>, Branch: <Branch Name> ---> Apply ---> Save ---> Build the job ---> Go to the Console Output to see whether Jenkins has downloaded the code or not
+
+Job 9 - Freestyle (Integrating Maven with Jenkins - Building the Job using 'Execute Shell' option)
+Open the previously created job in Job 8 ---> Configure ---> Lets say i want to build the artifact ---> Build Steps (left pane) ---> Select 'Execute shell' ---> mvn clean package ---> Apply ---> Save ---> Build the job ---> Go to the Console Output to see whether Jenkins has generated the war file or not
+
+Job 10 - Freestyle (Integrating Maven with Jenkins - Building the Job using 'Invoke Top Level Maven Targets' option)
+Create a job ---> SCM (left pane) ---> 'Check' Git ---> Repo URL: <Provide Any Repo URL>, Branch: <Branch Name> ---> Lets say i want to build the artifact ---> Build Steps (left pane) ---> Select 'Invoke Top Level Maven Targets' ---> clean package ---> Apply ---> Save ---> Build the job ---> Go to the Console Output to see whether Jenkins has generated the war file or not
+
+Job 11 - Poll SCM
+
+Build Periodically ---- happens at specific time
+Poll SCM ---- will wait for 1 minute and then triggers the job
+GitHub Web Hooks --- immediately the job should get triggered whenever there is a change in repo
+
+Job 12 - Email Notification
+If build fails, we should get notifications
+
+Manage Jenkins -> System -> Email Notification
+
+SMTP server
+Default user e-mail suffix= @jenkinstest.com
+smtp.gmail.com
+
+Advance -> Use SMTP Authentication Username
+For password Go to browser --> gmail profile--> Manage your Google Account --> Security --> Turn ON 2-steps authentication --> On Top --> Search for App Password --> App name > Jenkins --> Create --> Copy code-> miqx ynqp dprc qgpt --> Done  
+copy the code and paste in password section 
+
+Use SSL
+SMTP Port = 465
+Test configuration by sending test e-mail --> kastrokiran@gmail.com --> Test Configuration
+
+Edit the job -> Configuration --> Post-build Actions --> Recipients = kastrokiran@gmail.com
+And Fail the job to get email
+
+-----------------------------------
+Recovering a deleted job
+-----------------------------------
+Install "Job configuration history"
+Jenkins dashboard ---> You will see a new option in leftpane as "Job configuration history" ---> Create a simple freestyle job ---> Build the job ---> Delete the job ---> Click on "Job configuration history" (left pane) ---> Show deleted jobs only (left pane) ---> Click on >> arrows under 'Restore project' option to recover the job ---> Goto Jenkins console and see the job availability
+
+Note: Whatever jobs that were created after installing the plugin, only those jobs can be recovered, if deleted.
+Note: For the jobs which were created before installing the plugin and if they are deleted, those deleted jobs will still be available in the VM i.e /var/lib/Jenkins/workspace path
+
+Note: You can also take the snapshots of AMI
