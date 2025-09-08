@@ -1,0 +1,391 @@
+------------------------------------------------------------------------------------------------------------------------------------------------
+									     JENKINS
+------------------------------------------------------------------------------------------------------------------------------------------------
+The official documentation of Jenkins: https://www.jenkins.io/
+
+=> Install & Setup Jenkins
+Launch 1 Amazon Linux 2 Instance, t2.micro, 30 GB
+
+===========================
+Jenkins Setup
+===========================
+Step 1: Launch Amazon Linux 2 AMI, t2.micro
+sudo -s   
+sudo yum update
+
+Step 2: Install Git, Java 17 and Maven in server
+yum install git java-17-amazon-corretto maven -y
+  
+Step 3: Jenkins installation
+Official documentation for commands 
+(Jenkins.io ---> download ---> RedHat) show in browser Jenkins.io ---> LTS Redhat (URL: https://www.jenkins.io/doc/book/installing/linux/#red-hat-centos)
+
+sudo wget -O /etc/yum.repos.d/jenkins.repo \
+    https://pkg.jenkins.io/redhat-stable/jenkins.repo
+
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+
+sudo yum upgrade
+
+yum install jenkins -y
+
+systemctl start jenkins.service
+
+systemctl status jenkins.service  
+You should see "active (running)" in green colour 
+
+NOTE: chkconfig jenkins on
+The above command will make Jenkins service automatically restart itself whenever a server is stopped and restarted
+
+Step 4: Setup Jenkins Dashboard
+Setup Credentials
+Install suggested plugins
+Create admin user
+Access the Jenkins dashboard
+
+
+Default path of Jenkins: /var/lib/jenkins
+
+
+=============================================================================
+=> Throttle Builds;
+Job ----> Restrict the job to be built in a minute/hour
+
+Hour --- 2 times
+Minute --- 1 time
+
+=> Upstream and Downstream Jobs/Build after other projects are built
+Job1 --- Trigger (Successful)
+Job2 --- Automatic Trigger (Successful)
+Job3 --- Automatic Trigger (Successful)
+
+Dev (Jenkins)	----> 	SIT (Jenkins)	----> 	UAT	 (Jenkins) ----> Pilot (Jenkins) ----> Prod (Jenkins)
+
+=> Discard old builds
+Job1 ---- 5 builds --- 500 MB
+
+=> Trigger Builds Remotely
+Jenkins Admin ---- Deployment is ready to happen (job is ready to be built) ---- Vacation ---- No laptop ---- Trigger the job ---- Configure "Trigger Builds Remotely" ---- URL ---- Email/WhatsApp
+
+
+JOB 1 - Freestyle (Jenkins Parameters)
+"This project is parameterized"
+Parameters are used to pass variables in key-value pairs during the build
+
+Name = pj
+Age = X
+Gender = Male
+
+x
+y
+z
+
+My Name is pj, I'm DevOps Engineer
+Execute shell ----> echo "My Name is pj, I'm DevOps Engineer"
+echo "My Name is pj, I'm DevOps Trainer
+
+
+(a) String Parameter
+Create job ---> General ---> 'Check' This project is parameterized ---> Add parameters ---> String parameter ---> Name: Name, Default value: Kastro ---> Add parameters ---> String parameter ---> Name: Role, Default value: DevOps Trainer ---> Scroll down to 'build steps' ---> Select 'Execute shell' ---> echo "My Name is" $Name and "I'm a" $Role ---> Apply ---> Save ---> Now you will see "Build with parameters' option instead of build now ---> click on 'Build with parameters' ---> You will see the default values ---> Click on 'Build' ---> Goto console output and verify
+
+Build the above job one more with different Name and Role as required by the students. Goto console output and verify
+
+This is how we can pass variables inside the build.
+
+(b) Choice Parameter - I want the job to take name from user and select the gender from user using dropdown option
+Create job ---> General ---> 'Check' This project is parameterized ---> Add parameters ---> String parameter ---> Name: Name, Default value: Kastro ---> Add parameters ---> Choice parameter ---> Name: Gender, Choices: Write the below in line by line;
+Male
+Female
+Others ---> Scroll down to 'build steps' ---> Select 'Execute shell' ---> echo "My Name is" $Name and "I'm a" $Gender ---> Apply ---> Save ---> Now you will see "Build with parameters' option instead of build now ---> click on 'Build with parameters' ---> You will see the default values ---> Select the gender from drop down ---> Click on 'Build' ---> Goto console output and verify
+
+Here we have configured local variables (passing variables inside the build). To configure global variables we will use 'System' option in 'Manage Jenkins' option
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Job 2 - Email Notification
+If build fails, we should get notifications
+
+Manage Jenkins -> System -> Email Notification
+
+SMTP server
+Default user e-mail suffix= @jenkinstest.com
+smtp.gmail.com
+
+Advance -> Use SMTP Authentication Username
+For password Go to browser --> gmail profile--> Manage your Google Account --> Security --> Turn ON 2-steps authentication --> On Top --> Search for App Password --> App name > Jenkins --> Create --> Copy code-> miqx ynqp dprc qgpt --> Done  
+copy the code and paste in password section 
+
+Use SSL
+SMTP Port = 465
+Test configuration by sending test e-mail --> pj013525@gmail.com --> Test Configuration
+
+Edit the job -> Configuration --> Post-build Actions --> Recipients = pj013525@gmail.com
+And Fail the job to get email
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Job 3 - Webhook Concept
+Whenever developer makes changes in the repo, immediately the job will be built
+This is useful in realtime, because whenever developer makes changes automatically the job should get triggered and updated code should get deployed into the servers
+
+Go inside the repo ---> Settings ---> Webhooks (leftpane) ---> Add webhook ---> Payload URL: Jenkins URL upto 8080/github-webhook/ ---> Content type: application/json ---> Add webhook
+
+Now Create a new job -> Free Style --> git --> Repo url (Hotstar App) --> branch (/main or /master) --> Build Trigger --> GitHub hook trigger for GITScmpolling --> Build Step --> invoke top level maven targets --> Goals: clean package
+
+--> in AWS SG enable ALL traffic because GitHub needs to connect to your ec2 Jenkins
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Job 4 - Throttle Builds
+To restrict the number of jobs to be built in a specific time period we will use Throttle Builds
+For ex; lets say in 1 hour i want only 2 builds to happen then we will configure throttle builds
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Job 5 - Trigger Build Remotely
+Create a freestyle job ----> Make sure to build the job at least once
+
+Goto the Job ----> Configure ----> Build Triggers ----> 'Check' Build Trigger Remotely ----> Authentication Token: <EnterAnyNameForToken> ----> Copy the URL below and paste it notepad. The URL looks like as shown below;
+
+Syntax: JENKINS_URL/job/job1/build?token=TOKEN_NAME or /buildWithParameters?token=TOKEN_NAME
+
+----> Apply ----> Save
+
+Paste the URL in new browser and you can see Jenkins is asking for username and password. Enter username and password, and check for the build. A new build should have got executed.
+
+Here, if i have to enter the username and password, i can directly login to the Jenkins console and i can click on build now. I dont want to enter the Jenkins creds. I want to generate an url, once i hit the url (without entering the username and password) the job should get built.
+
+To do this we have to install a Pugin known as; "Build Authentication Token Root"
+Install the above plugin
+
+Paste the URL in browser and click enter ---> Now it will not ask the Jenkins creds ---> Goto the Jenkins console and the new build got created.
+
+http://54.221.184.181:8080/job/Job4/build?token=kastro
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Job 6 - Tomcat Integration
+To deploy java app using Jenkins we will use Tomcat App Server
+Tomcat - App Server
+Apache - Web Server
+
+1. Already we have Jenkins Server
+2. Launch one more VM - Amazon Linux 2 AMI (Name: Tomcat Server)
+
+Storing Artifacts in S3 Bucket
+Install "S3 publisher" plugin
+
+To communicate Jenkins with AWS, we need to generate access and secret keys
+AWS ---> IAM ---> Create any user with no permissions ---> Open the user ---> Scurity credentials ---> Create keys ---> Use case: CLI ---> Next ---> Create access key.
+Lets configure the access and secret access key in Jenkins 
+
+Jenkins dashboard ---> Manage jenkins ---> System configuration ---> System ---> Scroll down to "Amazon S3 Profiles" ---> Add ---> Profile name: awscreds ---> Access key: get from IAM console ---> Secret key: get from IAM console ---> Apply ---> Save
+
+We need artifact to go into S3 bucket ---> Create S3 bucket with default settings
+
+Open the job ---> Configure ---> Post build actions ---> Publish artifacts to S3 bucket ---> S3 profile: select from dropdown ---> Files to upload: Add --->  Source: **/*.war ---> Destination bucket: <GiveTheBucketName>/ ---> Storage class: Standard ---> Bucket region: select the region ---> 'check' SSE ---> Apply ---> Save ---> Build the job ---> Goto the bucket and check for artifacts
+
+Note: Enable 'versioning' for the bucket, so that whenever the job builds, the multiple versions of the war file will be stored.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Job 7 - Build after other projects are built / Upstream and downstream jobs
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Job 8 - Jenkins + Maven + GitHub + Tomcat Integration - Project 1
+JENKINS + GITHUB + MAVEN + TOMCAT - Integration
+------------------------------------------------------------------------------------------
+
+
+GitHub: https://github.com/pj013525/maven-app-1.git
+Tasks:
+---------------
+========
+Part 1
+========
+1. Create an EC2 Instance (Amazon Linux 2 AMI) - Connect to the instance using MobaXTerm Tool.
+----------------------------------------------------------
+Installation of Jenkins on EC2 Instance:
+----------------------------------------------------------
+***********
+Part 1
+***********
+1. Launch and Connect to the Instance (Amazon Linux 2 AMI, t2.micro, 20 GB) using MobaXTerm
+
+2. Become Root User
+sudo su
+cd (You will see only IP of Instance)
+sudo yum update -y
+
+https://www.jenkins.io/doc/tutorials/tutorial-for-installing-jenkins-on-AWS/
+(Latest commands to install Jenkins in Amazon Linux 2023 instance)
+
+3. Add Jenkins repo. to our YUM repo:
+sudo wget -O /etc/yum.repos.d/jenkins.repo \
+    https://pkg.jenkins.io/redhat-stable/jenkins.repo
+
+4. Import a key-file from Jenkins-CI to enable the installation from package:
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+sudo yum upgrade
+
+5. Installing Java
+sudo yum install java-17-amazon-corretto-headless
+java -version
+
+6. Install Jenkins:
+sudo yum install jenkins -y
+
+7. Lets start, enable, and check the status of Jenkins
+sudo systemctl enable jenkins
+sudo systemctl start jenkins
+sudo systemctl status jenkins
+
+You should see "Active & Running" in Green Colour, which means the Jenkins Service is successfully installed.
+
+Note: To remove jenkins: sudo yum remove jenkins
+
+
+By default, the Jenkins tool will run on Port No. 8080
+Enable Port No. 8080 for the EC2 Instance inorder to access Jenkins Tool.
+Check Instance ----> Security ----> Click on link below the Security Group ----> Add Rule ----> Custom TCP, Port No. 8080 ----> Save Rules.
+Access Jenkins: <public ip>:8080
+
+Get the administration password
+cat <Paste the red code visible while accessing jenkins in browser> and execute in MobaXTerm
+
+Copy the code visible in MobaXTerm and Paste in Notepad
+8f39e64834e34e3ba2e6b0ef55695ea0
+
+Paste the above code in Jenkins Browser under "Administrative Password"
+
+Click on "Install Suggested Plugins"
+
+Create First Admin User
+
+Provide Username, Password, Full Name, and Email
+
+Save and Continue
+
+Copy the Jenkins URL and Paste in Notepad
+http://3.135.249.138:8080/
+
+Save and Finish
+
+Click on "Start Using Jenkins"
+========
+Part 3
+========
+TOMCAT WEBSERVER INSTALLATION ON LINUX EC2 INSTANCE
+https://tomcat.apache.org/download-90.cgi ----> Downloads ----> Tomcat 9 ----> Copy the link of tar.gz file ----> https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.73/bin/apache-tomcat-9.0.73.tar.gz ----> sudo wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.73/bin/apachetomcat-9.0.73.tar.gz ----> ls -l ----> You will the tomcat file in red colour. This is a tar.gz file and we have to extract the tar.gz file ----> tar -xvf <enter the name of tomcat file in red colour> ----> All the files will get extracted ----> ls -l ----> You will see the list of extracted files ---> cd <enter the name of tomcat file in blue colour>
+
+Lets start the tomcat server:
+Inorder to start the tomcat server, we need a file called "startup.sh"
+This "startup.sh" file will be there in "bin" folder ----> cd bin ----> ls -l ----> you will see startup.sh file ----> ./startup.sh ----> You will see "Tomcat Started"
+Lets access the tomcat server:
+Since, the tomcat also runs on Port No. 8080, we cannot access tomcat as on the same port no. jenkins is also running.
+Now, we have to change the Port No. of Tomcat. (Tomcat Port No. 9090)
+
+How to change the port no. of Tomcat?
+------------------------------------------------------
+In order to change the port no. of Tomcat, we will configure a file known as "server.xml" This server.xml file will be available in "conf" folder.
+cd .. ----> pwd ----> /home/ec2-user/apache-tomcat-9.0.73 ----> ls -l ----> cd conf ----> ls -l ----> you will see server.xml file ----> vi server.xml ----> scroll down till you see "connector port=8080" ----> press "i" ----> Change the port no to 9090 instead of 8080 ----> escape ---->
+:wq
+
+Check the Tomcat accessibility. By default the Tomcat will also run on Port No. 8080. But on the same port no. jenkins is also running.
+
+So we have to add the port no. to 9090 in ec2 instance to access Tomcat:
+"Check" the instance ----> Security ----> Click on the link under SGs ----> Add Rules ----> Custom TCP, 9090, AnywhereIPv4 ----> Save Rules.
+Shutdown the tomcat server ----> cd bin ----> ./shutdown.sh ----> ./startup.sh
+
+Open new tab: <Paste the Public IP of Instance>:9090 ----> You will see the Tomcat Home Page
+Go to browser and check for tomcat accessibility. You are now able to access Tomcat and Jenkins in the same instance.
+Here we can access only the Home page of Tomcat.
+
+Inorder to access complete tomcat server, we need to do the configuration in "context.xml" file. 
+apache-tomcat-9.0.73/webapps/manager/META-INF/context.xml
+
+cd apache-tomcat-9.0.73/webapps/manager/META-INF/context.xml ----> vi context.xml ----> You will see a "valve" tag. You have to edit "Allow" tag ----> ".*" />
+
+Configuring the Users in Tomcat
+---------------------------------------------
+we need to edit the tomcat-users.xml to configure the users. The "tomcat-users.xml" file is available in "conf" folder
+<role rolename="manager-gui" />
+<user username="tomcat" password="tomcat" roles="manager-gui" />
+<role rolename="admin-gui" />
+<user username="admin" password="admin" roles="manager-gui,admin-gui"/>
+
+cd bin
+./shutdown.sh
+./startup.sh
+
+Access Tomcat on Browser ----> Click on Server Status ----> Enter the username (admin) and password (admin)
+
+Install git on VM
+---------------------------------
+Install GIT in EC2 Instance where Jenkins is running
+sudo yum install git -y
+
+Jenkins Port No.: 8080
+Tomcat Port No.: 9090
+
+========
+Part 4
+========
+Inorder to do the automation, Jenkins is going to execute some script to deploy the war file into the Tomcat Webserver.
+___________________________________________________________
+Step 1: Adding the manager-script role in tomcat-users.xml file
+___________________________________________________________
+In order to do the automation, Tomcat user should have a "manager-script" permission. There should be one user in the Tomcat with the "manager-script" permission. Then with that user credentials we can automate the deployment process.
+
+Goto MobaXTerm and Connect to the Instance ----> ls -l ----> cd apache-tomcat-9.0.73 ----> ls -l ----> cd conf ----> ls -l ----> You can see tomcat-users.xml ----> vi tomcat-users.xml ----> Scroll down till you see "role rolename="manager-gui"", go to the last but-one line and type the below
+<role rolename="manager-script" /> 
+Goto the last line of "user username="admin"", and type manager-script at the last, just before inverted quotations ----> esc ----> :wq
+___________________________________________________________
+Step 2: Installing "deploy to container" plugin in Jenkins software
+___________________________________________________________
+Jenkins Dashboard ----> Manage Jenkins ----> Plugins ----> Available Plugins ----> In the search bar, type 'deploy to container' and check the same ----> Click on "Install without restart" ----> Click on "Go back to the top page".
+___________________________________________________________________________
+Step 3: Creating a Jenkins job and for that Jenkins job we will give permission to deploy
+___________________________________________________________________________
+Add JDK, GIT, MAVEN in Jenkins Browser Page by going into Tools Configuration
+Repo URL:
+https://github.com/KastroVKiran/maven-app-1.git
+Fork the above repository to your GitHub account
+
+========
+Part 5
+========
+1) Create Jenkins Job
+-> New Item.
+-> Enter Item Name (Job Name) Name: git-maven-tomcat-integration
+-> Select Free Style Project & Click OK
+-> Enter some description
+-> Go to "Source Code Management" Tab and Select "Git"
+-> Enter Project "Git Repo URL" i.e https://github.com/KastroVKiran/maven-app-1.git
+Branch name: */main
+-> Go to "Build Triggers" tab. Here i will trigger the job manually.
+-> Go to "Build Steps" tab
+- Click on Add Build Step and Select 'Inovke Top Level Maven Targets'
+-> Select Maven and enter goals
+- Maven Version: Maven-3.9.6
+- Goals: clean package
+-> Click on 'Post Build Action' and Select 'Deploy war/ear to container' option
+-> Give path of war file (You can give like this also : **/*.war )
+-> Enter Context Path (give project name Ex: java_web_app)
+-> Click on 'Add Container' and select Tomcat version 9.x
+-> Credentials ---> Click on "Add" ---> A dia ---> Username: admin, Password: admin, ID: Tomcat-Credentials, Description: tomcat
+credentials ---> Add
+-> Credentials ---> Select "Tomcat-Credentials"
+-> Enter Tomcat Server URL (http://ec2-vm-public-ip:tomcat-server-port)
+-> Click on Apply and Save
+
+Note: To do any edits to the job, click on "Configure" and edit accordingly
+
+2) Run the job now using 'Build Now' option and see see 'Console Output' of job
+3) Once Job Executed successfully, go to tomcat server dashboard and see application should be displayed.
+4) Goto Tomcat browser and click on "maven-web-app" Click on the application name (it should display application)
+For ex, assume that i have modified the code in github repo; does the changes gets reflected in our app? Lets see
+
+Goto repo https://github.com/ashokitschool/maven-web-app.git ---> src/main/webapp/index.jsp ---> Change the code accordingly ---> Commit changes ---> Goto Tomcat browser and reload ---> You dont see any changes.
+
+So what we need to do is; we need to rebuild the job ---> Goto Jenkins UI ---> Build Now ---> Goto Tomcat Browser ---> Refresh the page ---> You will see the changes. But here there is a problem, whenever there is a code change, how DevOps engineers knows it?
+
+So, here we need to do automation in such that, whenever there is a change in the code in GitHub repo, automatically those changes should reflect in the app. Lets do that.
+Jenkins UI ---> Configure ---> Build triggers ---> Poll SCM ---> Schedule: * * * * * ---> Apply ---> Save
+
+Goto repo ---> src/main/webapp/index.jsp ---> In the place of version, keep your name ---> Commit changes ---> Goto Tomcat browser and reload ---> You see changes now (wait for a minute)
+
+Goto Jenkins UI ---> You will see the next build triggered automatically.
+
+This is called Continuous Integration and Continuous Deployment
+Do again some changes in repo. and look for changes in app browser tab
+
+Configure GitHub Webhook as well
