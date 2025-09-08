@@ -1,0 +1,235 @@
+------------------------------------------------------------------------------------------------------------------------------------------------
+MAVEN
+----------------------
+In real-time, Maven is mostly used by Developers.
+Maven is also used by DevOps Engineers.
+
+What is Maven?
+Maven is a build tool which is used to create the initial project folder structure to develop/write the source code of the application.
+
+What are the build tools available in the market?
+Based on the programming languages, we have different build tools;
+Java			- Maven 
+Python		- PyCharm
+Ruby		- Rakes
+.net			- MS Build
+
+In real-time, most (90%) of the projects will be developed using Java Programming Language (JPL).
+Since the projects are developed using JPL, it is essential to learn MAVEN for DevOps Engineers.
+
+Project ----- Developers ----- Write the code ----- Filename: Netflix.java --- GitHub ---- DevOps Engineer --- Take the code and deploy into the servers. But, it is not possible to directly deploy the code into the servers.
+
+Maven is used to create the project folder structure.
+
+How Maven is used by DevOps Engineers?
+There are 4 ways;
+1. Using Maven we can create the initial project folder structure
+Whenever we create a project folder structure, two things will be available by default
+	- src
+	- pom.xml
+
+2. Using Maven we can download the 'dependencies' required for a project
+2.1. What is dependency?
+Chicken Biryani ---- Chicken --- Rice, Masala,....
+Netflix ---- Java --- Dependencies (Spring Boot, Spring, Frameworks...)
+2.2. How Maven will download the dependency?
+Using pom.xml file maven will download the dependencies
+POM - Project Object Model
+If you want pom.xml file to download the dependencies, we need to configure the dependencies in the file
+Whatever you want to communicate with Maven, we need to communicate using pom.xml file only
+
+MLA/MP ----> PA ----> Appointment
+Maven ----> pom.xml ----> add the dependencies
+
+3. Using Maven we can 'compile' the source code of the application
+
+Netflix.java (Human readable language) ---- Servers will not understand the human readable language.
+We have to convert the human readable language into machine understandable language
+The process of converting the human readable language into machine understandable language is known as 'Compilation'
+
+			   compile
+Netflix.java ------------------------ Netflix.class
+
+4. Using Maven, we can 'package' the source code of the application.
+Generally, we dont have only one .java file. We will have multiple .java files.
+
+			   compile
+100 .java files ------------------------ 100.class files
+
+All these 100 .class files will be packaged as a single file
+
+When we package the .class files, the file extensions will change based on the types of application.
+
+How many types of application?
+3 types
+	- Standalone application		- package		- .jar (Java Archive)
+	- Web application			- package		- .war (Web Archive)
+	- Enterprise application		- package		- .ear (Enterprise Archive)
+
+The packaged file(s) will be deployed into the Servers
+
+--------------------------------
+Maven Introduction
+--------------------------------
+Maven is developed by using JPL
+If you want to work with Maven, we need to install Java in the machine
+	- java 8, java 11, java 17, java 21, java 23
+The machine which contains JPL is known as JVM - Java Virtual Machine
+Maven is a build tool or Java build tool
+Maven is owned by Apache organization
+
+---------------------
+Maven demo
+---------------------
+Launch EC2 instance (Amazon Linux 2 AMI, t2.micro)
+	Install Maven ( sudo yum install maven -y) (mvn --version)
+	Write the .java code
+	Try to execute the java code - failure
+	Compile the java code
+	Execute the code and check for output
+
+Java code 1
+public class Demo {
+    public static void main(String[] args) {
+        System.out.println("Welcome to Maven Classes by Kastro");
+    }
+}
+
+Java code 2
+import java.util.Scanner;
+
+public class DevOpsGreeting {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Asking for the user's name
+        System.out.print("Your Name: ");
+        String name = scanner.nextLine();
+
+        // Asking what the user is learning in DevOps
+        System.out.print("What are you learning in DevOps now? : ");
+        String course = scanner.nextLine();
+
+        // Displaying the welcome message
+        System.out.println("Hi " + name + ", Welcome to " + course + " course.");
+        System.out.println("Happy Learning");
+
+        // Displaying the Regards message with KASTRO in bold and red color
+        String redBoldKastro = "KASTRO"; // ANSI escape code for bold and red text
+        System.out.println("\nRegards\n" + redBoldKastro);
+    }
+}
+
+Java code 3
+import java.util.Scanner;
+
+public class AddTwoNumbers {
+    public static void main(String[] args) {
+        // Create a Scanner object for input
+        Scanner scanner = new Scanner(System.in);
+
+        // Prompt the user to enter the first number
+        System.out.print("Enter the first number: ");
+        double num1 = scanner.nextDouble();
+
+        // Prompt the user to enter the second number
+        System.out.print("Enter the second number: ");
+        double num2 = scanner.nextDouble();
+
+        // Add the two numbers
+        double sum = num1 + num2;
+
+        // Display the result
+        System.out.println("The sum of " + num1 + " and " + num2 + " is " + sum);
+        
+        // Close the scanner
+        scanner.close();
+    }
+}
+
+-----------------------------------
+Maven Terminology
+-----------------------------------
+1. Archetype
+- Archetype represents what type of project we are going to create.
+- It acts as a blueprint for our application
+	- maven-archetype-webapp ----> It represents the web application
+	- maven-archetype-quickstart ----> It represents the standalone application
+
+2. group ID
+- It represents the company name or a project name
+Ex: groupID: XYZ-Company
+       groupID: Netflix
+Ex: groupID: Infosys-Netflix
+
+3. Artifact ID
+- It represents the project module name
+Ex: ArtifactID: Netflix-Movies
+      ArtifactID: Netflix-Documentaries
+
+The jar, ear, and war files are called as 'artifacts'
+
+4. Packaging
+- It represents how you are packaging a file
+	- Standalone app --- .jar
+	- Web app	--- .war
+
+============================================
+How to create a standalone application using Maven:
+============================================
+mvn archetype:generate -DgroupId=in.<CompanyName> -DartifactId=<ProjectName> -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+mvn archetype:generate -DgroupId=in.StarAgile -DartifactId=Netflix -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+By executing the above code, we are going to create an Initial project folder structure
+
+--------------------------------------------------------------------
+How to add the dependencies in the pom.xml?
+--------------------------------------------------------------------
+If you want to add dependencies to the pom.xml file, we will use the  Maven Central Repository
+Maven Central Repository - mvnrepository.com
+On the "mvnrepository.com" website, we will find the dependencies required for the project
+
+----------------------------------
+Maven repositories
+----------------------------------
+3 types of maven repositories;
+	1. Local repo
+	2. Central repo
+	3. Remote repo - Nexus, JFrog
+
+Why do companies maintain their own Remote Repos?
+Spring Boot Dependency - 3.4.4. Version (2025, March) (No vulnerabilities) - (2025, August) (Vulnerabilities) 
+Remote Repo ----- 3.4.4. Version (Download and Upload) --- Central 3.4.4 Version (after 2 months, there is a bug)
+
+------------------------------------------------
+Maven Goals / Maven Lifecycle
+------------------------------------------------
+1. Clean		- it will delete the 'TARGET" folder	- mvn clean
+2. Test		- it will test the source code			- mvn test
+3. Compile	- it will compile the source code		- mvn compile
+4. Package	- it will package the project code		- mvn package		
+			   (jar/war file will get created in "TARGET" folder)
+
+Note: All Maven goals will start with "mvn"
+Note: mvn clean package
+Note: All Maven goals should be executed in the path where the pom.xml file is available
+Note: All the artifacts, we can store in Nexus/JFrog/S3 Buckets
+
+============================================
+How to create a web application using Maven:
+============================================
+mvn archetype:generate -DarchetypeArtifactId=maven-archetype-webapp -DgroupId=in.StarAgile -DartifactId=01-Maven-WebApp-StarAgile -DinteractiveMode=false
+
+Updated command (use the command below while practicing)
+mvn archetype:generate \
+  -DarchetypeGroupId=org.apache.maven.archetypes \
+  -DarchetypeArtifactId=maven-archetype-webapp \
+  -DarchetypeVersion=1.4 \
+  -DgroupId=in.StarAgile \
+  -DartifactId=01-Maven-WebApp-StarAgile \
+  -DinteractiveMode=false
+
+After executing the above command, check for the war file in the target folder.
+
+The war which got generated will be deployed on the server.
