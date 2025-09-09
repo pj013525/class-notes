@@ -12,7 +12,7 @@ Based on the programming languages, we have different build tools;
 Java			- Maven 
 Python		- PyCharm
 Ruby		- Rakes
-.net			- MS Build
+.net		- MS Build
 
 In real-time, most (90%) of the projects will be developed using Java Programming Language (JPL).
 Since the projects are developed using JPL, it is essential to learn MAVEN for DevOps Engineers.
