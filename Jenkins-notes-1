@@ -6,7 +6,7 @@ The official documentation of Jenkins: https://www.jenkins.io/
 => Install & Setup Jenkins
 Launch 1 Amazon Linux 2 Instance, t2.micro, 30 GB
 
-===========================
+============================
 Jenkins Setup
 ===========================
 Step 1: Launch Amazon Linux 2 AMI, t2.micro
