@@ -32,7 +32,7 @@ Jenkins is a CI & CD tool
 By using Jenkins we can automate the build and deployment process
 Jenkins is developed using Java Programming Language
 If you want to work with Jenkins, we need to install Java (17,21)
-Jenkins will run on default port number which is 8080
+Jenkins will run on the default port number, which is 8080
 
 VM --- Tomcat (8080), Jenkins (8080)
 VM 1 -- Tomcat (8080)
